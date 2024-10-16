@@ -85,15 +85,16 @@ const studentData = {
   
   // Function to send form data via fetch to Google Apps Script
   function sendFormData(formDataObj) {
-    fetch('https://script.google.com/macros/s/YOUR_DEPLOYED_SCRIPT_ID/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbycNCUg82hkTP0Nwv265TsINmLL8fYP7n6cofRhdgAdQG5NFYi2mA2VX9UT0KdHdQUQ_Q/exec', {
       method: 'POST',
       body: JSON.stringify(formDataObj),
       headers: {
         'Content-Type': 'application/json'
       }
     })
-    .then(() => {
-      document.getElementById('output').innerHTML = 'Form submitted successfully!';
+    .then(response => response.text())  // Get full response as text
+    .then(responseText => {
+      document.getElementById('output').innerHTML = 'Response from server: ' + responseText;
   
       // Clear form fields
       document.getElementById('submissionForm').reset();
