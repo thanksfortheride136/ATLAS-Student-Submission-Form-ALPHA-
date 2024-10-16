@@ -41,58 +41,18 @@ const studentData = {
   
   // Form submission
   function submitForm() {
-    const studentName = document.getElementById('studentName').value;
-    const className = document.getElementById('className').value;
-    const projectName = document.getElementById('projectName').value;
-    const files = document.getElementById('fileUpload').files;
+    const formData = new FormData(document.getElementById('submissionForm'));
   
-    // Check if any files were selected
-    if (files.length === 0) {
-      document.getElementById('output').innerHTML = 'Error: Please upload at least one file.';
-      return;  // Stop form submission if no files are uploaded
-    }
-  
-    // Prepare formData object
-    const formDataObj = {
-      studentName: studentName,
-      className: className,
-      projectName: projectName,
-      files: []  // Initialize empty file array
-    };
-  
-    // Process selected files and convert to base64
-    for (let i = 0; i < files.length; i++) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        formDataObj.files.push({
-          name: files[i].name,
-          data: e.target.result
-        });
-  
-        // Once all files are processed, send the form
-        if (formDataObj.files.length === files.length) {
-          sendFormData(formDataObj);
-        }
-      };
-      reader.readAsDataURL(files[i]);  // Convert file to base64
-    }
-  
-    // Disable submit button to prevent multiple clicks
+    // Disable the submit button to prevent multiple submissions
     const submitButton = document.getElementById('submitButton');
     submitButton.disabled = true;
     submitButton.innerHTML = 'Submitting...';
-  }
   
-  // Function to send form data via fetch to Google Apps Script
-  function sendFormData(formDataObj) {
-    fetch('https://script.google.com/macros/s/AKfycbycNCUg82hkTP0Nwv265TsINmLL8fYP7n6cofRhdgAdQG5NFYi2mA2VX9UT0KdHdQUQ_Q/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbxUvsSUOjsc1wixdkimOLWfHUADtzSE4TDlYvsd1NpbpPEOu258wsw2st9ajzH0i8vE/exec', {
       method: 'POST',
-      body: JSON.stringify(formDataObj),
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      body: formData,  // Use FormData directly
     })
-    .then(response => response.text())  // Get full response as text
+    .then(response => response.text())
     .then(responseText => {
       document.getElementById('output').innerHTML = 'Response from server: ' + responseText;
   
@@ -101,7 +61,6 @@ const studentData = {
       document.getElementById('fileReadyMessage').innerHTML = '';
   
       // Re-enable submit button
-      const submitButton = document.getElementById('submitButton');
       submitButton.disabled = false;
       submitButton.innerHTML = 'Submit';
     })
@@ -109,7 +68,6 @@ const studentData = {
       document.getElementById('output').innerHTML = 'Error: ' + error.message;
   
       // Re-enable submit button
-      const submitButton = document.getElementById('submitButton');
       submitButton.disabled = false;
       submitButton.innerHTML = 'Submit';
     });
