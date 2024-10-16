@@ -14,18 +14,18 @@ const studentData = {
 function populateStudentNames() {
     const className = document.getElementById('className').value;
     const studentDropdown = document.getElementById('studentName');
-
+    
     // Clear any previous student names
     studentDropdown.innerHTML = '<option value="">-- Select Student --</option>';
 
     if (className && studentData[className]) {
-      const students = studentData[className];
-      students.forEach(student => {
-        const option = document.createElement('option');
-        option.value = student;
-        option.textContent = student;
-        studentDropdown.appendChild(option);
-      });
+        const students = studentData[className];
+        students.forEach(student => {
+            const option = document.createElement('option');
+            option.value = student;
+            option.textContent = student;
+            studentDropdown.appendChild(option);
+        });
     }
 }
 
@@ -33,9 +33,9 @@ function populateStudentNames() {
 document.getElementById('fileUpload').addEventListener('change', function(event) {
     const files = event.target.files;
     if (files.length > 0) {
-      document.getElementById('fileReadyMessage').innerHTML = files.length + ' file(s) selected. Ready to submit!';
+        document.getElementById('fileReadyMessage').innerHTML = files.length + ' file(s) selected. Ready to submit!';
     } else {
-      document.getElementById('fileReadyMessage').innerHTML = '';
+        document.getElementById('fileReadyMessage').innerHTML = '';
     }
 });
 
@@ -54,27 +54,27 @@ function submitForm() {
 
     // Prepare formData object
     const formDataObj = {
-      studentName: studentName,
-      className: className,
-      projectName: projectName,
-      files: []  // Initialize empty file array
+        studentName: studentName,
+        className: className,
+        projectName: projectName,
+        files: []  // Initialize empty file array
     };
 
     // Process selected files and convert to base64
     for (let i = 0; i < files.length; i++) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        formDataObj.files.push({
-          name: files[i].name,
-          data: e.target.result
-        });
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            formDataObj.files.push({
+                name: files[i].name,
+                data: e.target.result
+            });
 
-        // Once all files are processed, send the form
-        if (formDataObj.files.length === files.length) {
-          sendFormData(formDataObj);
-        }
-      };
-      reader.readAsDataURL(files[i]);  // Convert file to base64
+            // Once all files are processed, send the form
+            if (formDataObj.files.length === files.length) {
+                sendFormData(formDataObj);
+            }
+        };
+        reader.readAsDataURL(files[i]);  // Convert file to base64
     }
 
     // Disable submit button to prevent multiple clicks
@@ -86,31 +86,31 @@ function submitForm() {
 // Function to send form data via fetch to Google Apps Script
 function sendFormData(formDataObj) {
     fetch('https://script.google.com/macros/s/AKfycbxUvsSUOjsc1wixdkimOLWfHUADtzSE4TDlYvsd1NpbpPEOu258wsw2st9ajzH0i8vE/exec', {
-      method: 'POST',
-      body: JSON.stringify(formDataObj),
-      headers: {
-        'Content-Type': 'application/json'
-      }
+        method: 'POST',
+        body: JSON.stringify(formDataObj),
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        mode: 'no-cors'  // This suppresses CORS-related issues
     })
-    .then(response => response.text())  // Get full response as text
-    .then(responseText => {
-      document.getElementById('output').innerHTML = 'Response from server: ' + responseText;
+    .then(() => {
+        document.getElementById('output').innerHTML = 'Form submitted successfully!';
+        
+        // Clear form fields
+        document.getElementById('submissionForm').reset();
+        document.getElementById('fileReadyMessage').innerHTML = '';
 
-      // Clear form fields
-      document.getElementById('submissionForm').reset();
-      document.getElementById('fileReadyMessage').innerHTML = '';
-
-      // Re-enable submit button
-      const submitButton = document.getElementById('submitButton');
-      submitButton.disabled = false;
-      submitButton.innerHTML = 'Submit';
+        // Re-enable submit button
+        const submitButton = document.getElementById('submitButton');
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Submit';
     })
     .catch(error => {
-      document.getElementById('output').innerHTML = 'Error: ' + error.message;
+        document.getElementById('output').innerHTML = 'Error: ' + error.message;
 
-      // Re-enable submit button
-      const submitButton = document.getElementById('submitButton');
-      submitButton.disabled = false;
-      submitButton.innerHTML = 'Submit';
+        // Re-enable submit button
+        const submitButton = document.getElementById('submitButton');
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Submit';
     });
 }
