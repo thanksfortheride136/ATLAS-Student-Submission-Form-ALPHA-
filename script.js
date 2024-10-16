@@ -90,12 +90,13 @@ function sendFormData(formDataObj) {
         body: JSON.stringify(formDataObj),
         headers: {
             'Content-Type': 'application/json'
-        },
-        mode: 'no-cors'  // This suppresses CORS-related issues
+        }
     })
-    .then(() => {
-        document.getElementById('output').innerHTML = 'Form submitted successfully!';
-        
+    .then(response => response.text())  // Get full response as text
+    .then(responseText => {
+        console.log('Response from server: ', responseText);
+        document.getElementById('output').innerHTML = 'Response from server: ' + responseText;
+
         // Clear form fields
         document.getElementById('submissionForm').reset();
         document.getElementById('fileReadyMessage').innerHTML = '';
@@ -106,6 +107,7 @@ function sendFormData(formDataObj) {
         submitButton.innerHTML = 'Submit';
     })
     .catch(error => {
+        console.error('Error occurred: ', error);
         document.getElementById('output').innerHTML = 'Error: ' + error.message;
 
         // Re-enable submit button
