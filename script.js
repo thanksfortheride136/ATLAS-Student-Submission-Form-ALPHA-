@@ -88,7 +88,7 @@ function submitForm() {
 
 // Function to send form data via fetch to Google Apps Script
 function sendFormData(formDataObj) {
-    fetch('https://script.google.com/macros/s/AKfycbzhAkKAdKNHfpBohm9p_xuzm-lDIiewdhgB31Mojn56WpNwKisTpGKjzA19DH4jVnsu/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbzbb0aJKm2mOXld2Hpxs6sN04PClmT2S5ZjjKu6jjDgn-Ae7uyFFfhwV7daLWKTNo-pPQ/exec', {
         method: 'POST',
         body: JSON.stringify(formDataObj),
         headers: {
