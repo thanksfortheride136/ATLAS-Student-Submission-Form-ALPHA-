@@ -1,13 +1,13 @@
-// Student data
+// Student data (using fictional names as requested earlier)
 const studentData = {
-    "AP Computer Science Principles": ["Erica Colabella", "Yadiel De La Mota", "Colin Djurkinjak", "Elizabeth Gjelaj", "Victoria Gjelaj", "Vincent Handy", 
-    "Grace Kern", "Sophia Marku", "Gregory McCormack", "James Peters", "Chloe Piedmont", "Dylan Rigby", "Maya Sarma"],
-    "Engineering 1 (Period 3)": ["Adri Azemi", "Amiya Bah", "Mason Bogetti", "Jack Carinci", "Anthony Cermele", "Jenna Chen",
-     "Ariel Genao", "Justin Gjekaj", "Caden Goldberg", "Riku Katsuno", "Zakary Simpson"],
-    "Engineering 1 (Period 7)": ["Gianni Addeo", "Tommy Camejo", "Isabella Carinci", "Giovanni Del Mistro", "Lily Fleming", "Erin Gerken", 
-    "Dean Goldstein", "Emiliano Hernandez-Ferro", "Andrew Kubaska", "Cameron Ly", "Ephraim Mironchuk", "Dominic Restifo", "Aniya Shaw", "Mishel Syed"],
-    "Engineering 2": ["Gavin Barreno", "Lucas Hofflich", "Jon Ludi", "Santiago Ortega-Brown", "Luciana Vasquez", "Leila Garguilo"],
-    "STEM 8": ["Steve Rogers", "Bucky Barnes", "Sam Wilson"]
+    "AP Computer Science Principles": ["Pixel Byteson", "Algo Loopius", "Data Arrayana", "Cyber Codecraft", "Binary Boolena", "Syntax Errorson", 
+    "Function Callaway", "Variable Declara", "Logic Gateson", "Query Selectora", "Compile Debugger", "Script Kiddie", "Hack McCode"],
+    "Engineering 1 (Period 3)": ["Gears McGadget", "Bolt Screwdriver", "Wrench Spannerson", "Cog Wheelson", "Lever Pulleyson", "Circuit Boardia",
+     "Weld Solderbot", "Beam Trussmaker", "Torque Newtonson", "Piston Cylindra", "Alloy Metallurgy"],
+    "Engineering 1 (Period 7)": ["Robo Tronix", "Mecha Droidson", "Nano Botson", "Quantum Computron", "Laser Opticson", "Drone Hoverson", 
+    "Fusion Reactora", "Cyber Netson", "Techno Futura", "Holo Grammerson", "Dynamo Voltagius", "Widget Gizmonic", "Pixel Screenson", "Chip Siliconix"],
+    "Engineering 2": ["Rocket Thrustinator", "Jet Propulsia", "Gyro Stabilizor", "Sonar Echolocator", "Hydraulic Pressureson", "Pneumatic Airpumpsky"],
+    "STEM 8": ["Beaker Bunsenburner", "Pipette Volumetrica", "Petri Dishson"]
 };
 
 // Function to populate student names based on class selection
@@ -45,11 +45,6 @@ async function submitForm() {
     const projectName = document.getElementById('projectName').value;
     const files = document.getElementById('fileUpload').files;
 
-    if (files.length === 0) {
-        document.getElementById('output').innerHTML = 'Error: Please upload at least one file.';
-        return;
-    }
-
     const formDataObj = {
         studentName: studentName,
         className: className,
@@ -58,6 +53,7 @@ async function submitForm() {
     };
 
     try {
+        // Process files if any are selected, but don't require them
         for (let i = 0; i < files.length; i++) {
             const base64Data = await readFileAsBase64(files[i]);
             formDataObj.files.push({
@@ -72,8 +68,9 @@ async function submitForm() {
 
         await sendFormData(formDataObj);
     } catch (error) {
-        console.error('Error processing files:', error);
-        document.getElementById('output').innerHTML = 'Error processing files: ' + error.message;
+        console.error('Error processing form:', error);
+        document.getElementById('output').innerHTML = 'Error processing form: ' + error.message;
+    } finally {
         const submitButton = document.getElementById('submitButton');
         submitButton.disabled = false;
         submitButton.innerHTML = 'Submit';
@@ -129,10 +126,5 @@ async function sendFormData(formDataObj) {
     } catch (error) {
         console.error('Fetch error:', error);
         document.getElementById('output').innerHTML = 'Fetch error: ' + error.message;
-    } finally {
-        // Re-enable submit button
-        const submitButton = document.getElementById('submitButton');
-        submitButton.disabled = false;
-        submitButton.innerHTML = 'Submit';
     }
 }
