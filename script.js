@@ -1,4 +1,4 @@
-// Predefined student lists for each class
+// Student data (unchanged)
 const studentData = {
     "AP Computer Science Principles": ["Erica Colabella", "Yadiel De La Mota", "Colin Djurkinjak", "Elizabeth Gjelaj", "Victoria Gjelaj", "Vincent Handy", 
     "Grace Kern", "Sophia Marku", "Gregory McCormack", "James Peters", "Chloe Piedmont", "Dylan Rigby", "Maya Sarma"],
@@ -10,12 +10,11 @@ const studentData = {
     "STEM 8": ["Steve Rogers", "Bucky Barnes", "Sam Wilson"]
 };
 
-// Function to populate student names based on class selection
+// Function to populate student names (unchanged)
 function populateStudentNames() {
     const className = document.getElementById('className').value;
     const studentDropdown = document.getElementById('studentName');
     
-    // Clear any previous student names
     studentDropdown.innerHTML = '<option value="">-- Select Student --</option>';
 
     if (className && studentData[className]) {
@@ -29,7 +28,7 @@ function populateStudentNames() {
     }
 }
 
-// Show a message when files are selected
+// Show a message when files are selected (unchanged)
 document.getElementById('fileUpload').addEventListener('change', function(event) {
     const files = event.target.files;
     if (files.length > 0) {
@@ -40,87 +39,87 @@ document.getElementById('fileUpload').addEventListener('change', function(event)
 });
 
 // Form submission
-function submitForm() {
+async function submitForm() {
     const studentName = document.getElementById('studentName').value;
     const className = document.getElementById('className').value;
     const projectName = document.getElementById('projectName').value;
     const files = document.getElementById('fileUpload').files;
 
-    // Check if any files were selected
     if (files.length === 0) {
         document.getElementById('output').innerHTML = 'Error: Please upload at least one file.';
-        return;  // Stop form submission if no files are uploaded
+        return;
     }
 
-    // Prepare formData object
     const formDataObj = {
         studentName: studentName,
         className: className,
         projectName: projectName,
-        files: []  // Initialize empty file array
+        files: []
     };
 
-    // Process selected files and convert to base64
-    for (let i = 0; i < files.length; i++) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
+    try {
+        for (let i = 0; i < files.length; i++) {
+            const base64Data = await readFileAsBase64(files[i]);
             formDataObj.files.push({
                 name: files[i].name,
-                data: e.target.result
+                data: base64Data
             });
+        }
 
-            // Once all files are processed, send the form
-            if (formDataObj.files.length === files.length) {
-                sendFormData(formDataObj);
-            }
-        };
-        reader.onerror = function(e) {
-            console.error('Error reading file: ', e);
-        };
-        reader.readAsDataURL(files[i]);  // Convert file to base64
+        const submitButton = document.getElementById('submitButton');
+        submitButton.disabled = true;
+        submitButton.innerHTML = 'Submitting...';
+
+        await sendFormData(formDataObj);
+    } catch (error) {
+        console.error('Error processing files:', error);
+        document.getElementById('output').innerHTML = 'Error processing files: ' + error.message;
     }
+}
 
-    // Disable submit button to prevent multiple clicks
-    const submitButton = document.getElementById('submitButton');
-    submitButton.disabled = true;
-    submitButton.innerHTML = 'Submitting...';
+// Function to read file as base64
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = (e) => reject(new Error('Error reading file'));
+        reader.readAsDataURL(file);
+    });
 }
 
 // Function to send form data via fetch to Google Apps Script
-function sendFormData(formDataObj) {
-    fetch('https://script.google.com/macros/s/AKfycbzbb0aJKm2mOXld2Hpxs6sN04PClmT2S5ZjjKu6jjDgn-Ae7uyFFfhwV7daLWKTNo-pPQ/exec', {
-        method: 'POST',
-        body: JSON.stringify(formDataObj),
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
+async function sendFormData(formDataObj) {
+    // TODO: Replace this URL with your new Google Apps Script Web App URL
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycby-HwXT5oq1yKnOEKn4ISbCGcLlk-Cn59xVeY86vxURf5-7JWXxCKR9hgb2xC2U4l-qtw/exec';
+
+    try {
+        const response = await fetch(scriptUrl, {
+            method: 'POST',
+            body: JSON.stringify(formDataObj),
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            mode: 'cors'
+        });
+
         if (!response.ok) {
             throw new Error(`Server error: ${response.status}`);
         }
-        return response.text();  // Get full response as text
-    })
-    .then(responseText => {
-        console.log('Response from server: ', responseText);
+
+        const responseText = await response.text();
+        console.log('Response from server:', responseText);
         document.getElementById('output').innerHTML = 'Response from server: ' + responseText;
 
         // Clear form fields
         document.getElementById('submissionForm').reset();
         document.getElementById('fileReadyMessage').innerHTML = '';
-
-        // Re-enable submit button
-        const submitButton = document.getElementById('submitButton');
-        submitButton.disabled = false;
-        submitButton.innerHTML = 'Submit';
-    })
-    .catch(error => {
-        console.error('Fetch error: ', error);
+    } catch (error) {
+        console.error('Fetch error:', error);
         document.getElementById('output').innerHTML = 'Fetch error: ' + error.message;
-
+    } finally {
         // Re-enable submit button
         const submitButton = document.getElementById('submitButton');
         submitButton.disabled = false;
         submitButton.innerHTML = 'Submit';
-    });
+    }
 }
