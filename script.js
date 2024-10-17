@@ -74,6 +74,9 @@ function submitForm() {
                 sendFormData(formDataObj);
             }
         };
+        reader.onerror = function(e) {
+            console.error('Error reading file: ', e);
+        };
         reader.readAsDataURL(files[i]);  // Convert file to base64
     }
 
@@ -85,14 +88,19 @@ function submitForm() {
 
 // Function to send form data via fetch to Google Apps Script
 function sendFormData(formDataObj) {
-    fetch('https://script.google.com/macros/s/AKfycbzvDHDbGN-Vv39gOsMjhybXnPKn7CI07V6rpMy8-OgS3TvbhnCVMRyqsOmGYkSwWkH4bA/exec', {
+    fetch('https://script.google.com/macros/s/AKfycbz38t7mYAN8aD9yq8mgS7CgAD_Ke4e1w9EIyW1QT1TU55JA3jnjOdYD5jdWo_gie_9Itg/exec', {
         method: 'POST',
         body: JSON.stringify(formDataObj),
         headers: {
             'Content-Type': 'application/json'
         }
     })
-    .then(response => response.text())  // Get full response as text
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+        return response.text();  // Get full response as text
+    })
     .then(responseText => {
         console.log('Response from server: ', responseText);
         document.getElementById('output').innerHTML = 'Response from server: ' + responseText;
@@ -107,8 +115,8 @@ function sendFormData(formDataObj) {
         submitButton.innerHTML = 'Submit';
     })
     .catch(error => {
-        console.error('Error occurred: ', error);
-        document.getElementById('output').innerHTML = 'Error: ' + error.message;
+        console.error('Fetch error: ', error);
+        document.getElementById('output').innerHTML = 'Fetch error: ' + error.message;
 
         // Re-enable submit button
         const submitButton = document.getElementById('submitButton');
