@@ -1,4 +1,4 @@
-// Student data (unchanged)
+// Student data
 const studentData = {
     "AP Computer Science Principles": ["Erica Colabella", "Yadiel De La Mota", "Colin Djurkinjak", "Elizabeth Gjelaj", "Victoria Gjelaj", "Vincent Handy", 
     "Grace Kern", "Sophia Marku", "Gregory McCormack", "James Peters", "Chloe Piedmont", "Dylan Rigby", "Maya Sarma"],
@@ -10,7 +10,7 @@ const studentData = {
     "STEM 8": ["Steve Rogers", "Bucky Barnes", "Sam Wilson"]
 };
 
-// Function to populate student names (unchanged)
+// Function to populate student names based on class selection
 function populateStudentNames() {
     const className = document.getElementById('className').value;
     const studentDropdown = document.getElementById('studentName');
@@ -28,7 +28,7 @@ function populateStudentNames() {
     }
 }
 
-// Show a message when files are selected (unchanged)
+// Show a message when files are selected
 document.getElementById('fileUpload').addEventListener('change', function(event) {
     const files = event.target.files;
     if (files.length > 0) {
@@ -74,6 +74,9 @@ async function submitForm() {
     } catch (error) {
         console.error('Error processing files:', error);
         document.getElementById('output').innerHTML = 'Error processing files: ' + error.message;
+        const submitButton = document.getElementById('submitButton');
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Submit';
     }
 }
 
@@ -90,7 +93,7 @@ function readFileAsBase64(file) {
 // Function to send form data via fetch to Google Apps Script
 async function sendFormData(formDataObj) {
     // TODO: Replace this URL with your new Google Apps Script Web App URL
-    const scriptUrl = 'https://script.google.com/macros/s/AKfycby-HwXT5oq1yKnOEKn4ISbCGcLlk-Cn59xVeY86vxURf5-7JWXxCKR9hgb2xC2U4l-qtw/exec';
+    const scriptUrl = 'https://script.google.com/macros/s/AKfycbyZFJ2qtTtcwvZZ8d5FdmqLejRy1Z3zSdJD4Utb8pFNWvcils-RImp_0P4d-sywdYjiYg/exec';
 
     try {
         const response = await fetch(scriptUrl, {
@@ -102,13 +105,23 @@ async function sendFormData(formDataObj) {
             mode: 'cors'
         });
 
-        if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
+        const responseText = await response.text();
+        console.log('Raw response:', responseText);
+
+        let responseData;
+        try {
+            responseData = JSON.parse(responseText);
+        } catch (e) {
+            console.error('Error parsing JSON:', e);
+            throw new Error('Invalid JSON response from server');
         }
 
-        const responseText = await response.text();
-        console.log('Response from server:', responseText);
-        document.getElementById('output').innerHTML = 'Response from server: ' + responseText;
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}, ${responseData.message || responseText}`);
+        }
+
+        console.log('Response from server:', responseData);
+        document.getElementById('output').innerHTML = 'Response from server: ' + JSON.stringify(responseData);
 
         // Clear form fields
         document.getElementById('submissionForm').reset();
